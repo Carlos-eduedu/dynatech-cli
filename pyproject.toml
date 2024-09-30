@@ -5,8 +5,13 @@ description = ""
 authors = ["Carlos Eduardo Ferreira Fernandes <carlos@dynatech.tec.br>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+dynatech = "dynatech_cli.cli:app"
+
 [tool.poetry.dependencies]
 python = "3.12.*"
+typer = "^0.12.5"
+rich = "^13.8.1"
 
 
 [tool.poetry.group.dev.dependencies]
