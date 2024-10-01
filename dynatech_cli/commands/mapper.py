@@ -1,8 +1,11 @@
-from rich.console import Console
-from typer import Typer, Argument, Option, Exit
-from typing_extensions import Annotated
-from dynatech_cli.core import Mapper
 from typing import List
+
+from rich.console import Console
+from typer import Argument, Exit, Option, Typer
+from typing_extensions import Annotated
+
+from dynatech_cli.exporters import ExporterType, save_map
+from dynatech_cli.scrapers import Mapper
 
 console = Console()
 app = Typer()
@@ -39,6 +42,14 @@ def map_web_page(
             show_default=False,
             ),
         ] = 0.5,
+    save: Annotated[
+        ExporterType,
+        Option(
+            "--save",
+            "-s",
+            help='Salvar o mapa em um arquivo',
+            ),
+        ] = ExporterType.none,
 ) -> None:
     """
     Mapeamento de páginas web.
@@ -51,13 +62,33 @@ def map_web_page(
 
     $ dynatech mapper map https://example.com --recursive
 
+    ou
+
+    $ dynatech mapper map https://example.com -r
+
     Para definir a profundidade do mapeamento:
 
     $ dynatech mapper map https://example.com --max-depth 3
 
+    ou
+
+    $ dynatech mapper map https://example.com -m 3
+
     Para definir o intervalo entre requisições:
 
     $ dynatech mapper map https://example.com --rate-limit 1
+
+    ou
+
+    $ dynatech mapper map https://example.com -l 1
+
+    Para salvar o mapa em um arquivo:
+
+    $ dynatech mapper map https://example.com --save json
+
+    ou
+
+    $ dynatech mapper map https://example.com -s json
 
     Para mais informações, execute:
 
@@ -70,12 +101,20 @@ def map_web_page(
         else:
             mapper = Mapper(domain, max_depth=1, rate_limit=rate_limit)
 
-        console.print(f"[green]Iniciando o mapeamento de:[/green] [bold]{domain}[/bold]")
+        console.print(
+            f"[green]Iniciando o mapeamento de:[/green] [bold]{domain}[/bold]"
+            )
         links: List[str] = mapper.map_web_site()
 
-        console.print(f"\n[bold yellow]Total de links encontrados:[/bold yellow] {len(links)}\n")
-        for link in links:
-            console.print(f"[blue]{link}[/blue]")
+        console.print(
+            f"\n[bold yellow]Encontrados:[/bold yellow] {len(links)}\n"
+            )
+
+        if save != ExporterType.none:
+            console.print(
+                f"[green]Salvando o mapa em:[/green] [bold]{save.value}[/bold]"
+                )
+            save_map(links, save)
 
     except ValueError as ve:
         console.print(f"[red]Erro:[/red] {ve}")
