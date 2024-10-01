@@ -3,9 +3,12 @@ from typer import Context, Exit, Option, Typer
 from typing_extensions import Annotated
 
 from dynatech_cli import __version__
+from dynatech_cli.commands import mapper_app
 
 console = Console()
 app = Typer()
+
+app.add_typer(mapper_app, name="mapper", help="Mapeamento de paginas web.")
 
 
 def version_func(flag: bool):
